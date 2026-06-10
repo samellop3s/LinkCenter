@@ -42,9 +42,9 @@ A trajetória deste projeto foi marcada pelo desenvolvimento de diretrizes para 
 
 O projeto é inteiramente estático (SPA), podendo ser executado com qualquer servidor web simples.
 
-1. Navegue até o diretório do projeto:
+1. Navegue até o diretório do projeto (exemplo):
    ```bash
-   cd c:\Users\samue\LinkCenter\LinkCenter
+   cd /caminho/para/seu/projeto/LinkCenter
    ```
 2. Inicialize o servidor de desenvolvimento:
    ```bash

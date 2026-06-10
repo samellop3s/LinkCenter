@@ -145,3 +145,10 @@ body {
     margin-top: -100% !important;
   }
 }
+
+/* ==========================================
+   SEÇÃO: ANALYTICS (MÉTRICAS DO HUB)
+   ========================================== */
+#analytics {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

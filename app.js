@@ -59,6 +59,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Set initial form inputs based on loaded state
   initFormInputs();
   renderApp();
+
+  // Initialize analytics metrics and start the 3-second simulation
+  if (typeof updateMetricsDisplay === "function") {
+    updateMetricsDisplay();
+  }
+  if (typeof startMetricsSimulation === "function") {
+    startMetricsSimulation();
+  }
 });
 
 // Load configurations and items from local storage
@@ -420,6 +428,11 @@ function renderApp() {
   // Apply current appearance styles
   changeTheme(state.appearance.theme);
   changeBtnShape(state.appearance.btnShape);
+
+  // Update analytics metrics dynamically
+  if (typeof updateMetricsDisplay === "function") {
+    updateMetricsDisplay();
+  }
 }
 
 // Render links within the Sidebar management panel
@@ -627,4 +640,56 @@ function renderMockupSocials() {
   if (!hasSocials) {
     container.innerHTML = `<span class="text-[10px] text-white/30 italic">Nenhuma rede social configurada</span>`;
   }
+}
+
+// ==========================================
+// SEÇÃO: ANALYTICS (MÉTRICAS DO HUB)
+// ==========================================
+
+// Initial metrics state using descriptive property names
+let hubMetrics = {
+  totalClicksCount: 1240,
+  conversionRatePercent: 68.4,
+  errorsCount: 2
+};
+
+// Pure-like display updater to sync metrics state with HTML elements
+function updateMetricsDisplay() {
+  const clicksEl = document.getElementById("metric-clicks");
+  if (clicksEl) clicksEl.textContent = hubMetrics.totalClicksCount.toLocaleString("pt-BR");
+
+  const conversionEl = document.getElementById("metric-conversion");
+  if (conversionEl) conversionEl.textContent = `${hubMetrics.conversionRatePercent.toFixed(1)}%`;
+
+  const errorsEl = document.getElementById("metric-errors");
+  if (errorsEl) errorsEl.textContent = hubMetrics.errorsCount;
+
+  const activeEl = document.getElementById("metric-active");
+  if (activeEl && typeof state !== "undefined" && state.links) {
+    // Dynamic active links count directly from app state
+    const activeCount = state.links.filter(link => link.active).length;
+    activeEl.textContent = activeCount;
+  }
+}
+
+// Simulation loop updating the metrics state every 3 seconds
+function startMetricsSimulation() {
+  setInterval(() => {
+    // Simulate slight natural growth in clicks
+    hubMetrics.totalClicksCount += Math.floor(Math.random() * 4);
+    
+    // Simulate slight fluctuation in conversion rate
+    const conversionDelta = (Math.random() - 0.5) * 0.3;
+    hubMetrics.conversionRatePercent = Math.max(10, Math.min(100, hubMetrics.conversionRatePercent + conversionDelta));
+    
+    // Random chance to fluctuate errors count
+    const errorChance = Math.random();
+    if (errorChance > 0.96) {
+      hubMetrics.errorsCount += 1;
+    } else if (errorChance < 0.03 && hubMetrics.errorsCount > 0) {
+      hubMetrics.errorsCount = Math.max(0, hubMetrics.errorsCount - 1);
+    }
+    
+    updateMetricsDisplay();
+  }, 3000);
 }

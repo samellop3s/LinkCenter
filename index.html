@@ -310,9 +310,56 @@
     </header>
 
     <!-- Links Grid Container -->
-    <div id="preview-links-container" class="mt-[15px] grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-4xl p-[25px] overflow-y-auto max-h-[calc(100vh-220px)] scrollbar-none animate-fade-in z-10 justify-center">
+    <div id="preview-links-container" class="mt-[15px] grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-4xl p-[25px] overflow-y-auto max-h-[calc(100vh-340px)] scrollbar-none animate-fade-in z-10 justify-center">
       <!-- Dynamically Rendered by JS -->
     </div>
+
+    <!-- Section: Analytics -->
+    <section id="analytics" class="w-full max-w-4xl p-6 border border-zinc-800 bg-zinc-950/40 backdrop-blur-md rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-4 animate-fade-in z-10 pointer-events-auto mt-6">
+      <!-- Card Clicks -->
+      <div onclick="showToast('Total de cliques registrados')" class="flex items-center gap-3 bg-zinc-900/40 border border-zinc-800/80 p-3 rounded-xl hover:border-zinc-700/80 transition-all active:scale-95 cursor-pointer">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-mouse-pointer text-purple-400 text-sm"></i>
+        </div>
+        <div>
+          <h3 class="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Cliques</h3>
+          <p id="metric-clicks" class="text-sm font-black text-white">0</p>
+        </div>
+      </div>
+      
+      <!-- Card Conversion -->
+      <div onclick="showToast('Taxa de conversão estimada')" class="flex items-center gap-3 bg-zinc-900/40 border border-zinc-800/80 p-3 rounded-xl hover:border-zinc-700/80 transition-all active:scale-95 cursor-pointer">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-chart-line text-emerald-400 text-sm"></i>
+        </div>
+        <div>
+          <h3 class="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Conversão</h3>
+          <p id="metric-conversion" class="text-sm font-black text-white">0%</p>
+        </div>
+      </div>
+      
+      <!-- Card Errors -->
+      <div onclick="showToast('Erros de redirecionamento')" class="flex items-center gap-3 bg-zinc-900/40 border border-zinc-800/80 p-3 rounded-xl hover:border-zinc-700/80 transition-all active:scale-95 cursor-pointer">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-triangle-exclamation text-rose-400 text-sm"></i>
+        </div>
+        <div>
+          <h3 class="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Erros</h3>
+          <p id="metric-errors" class="text-sm font-black text-white">0</p>
+        </div>
+      </div>
+      
+      <!-- Card Active -->
+      <div onclick="showToast('Links ativos no momento')" class="flex items-center gap-3 bg-zinc-900/40 border border-zinc-800/80 p-3 rounded-xl hover:border-zinc-700/80 transition-all active:scale-95 cursor-pointer">
+        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-link text-cyan-400 text-sm"></i>
+        </div>
+        <div>
+          <h3 class="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Ativos</h3>
+          <p id="metric-active" class="text-sm font-black text-white">0</p>
+        </div>
+      </div>
+    </section>
 
     <!-- Instructions / Footer info -->
     <p class="absolute bottom-4 text-center text-[10px] text-white/60 drop-shadow uppercase font-medium">

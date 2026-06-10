@@ -40,7 +40,7 @@
   <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-cyan-900/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
   <!-- Left Sidebar (Control Panel) -->
-  <aside class="w-full md:w-[480px] bg-[#0e1322] border-b md:border-b-0 md:border-r border-gray-800/80 flex flex-col z-10">
+  <aside id="sidebar" class="w-full md:w-[480px] bg-[#0e1322] border-b md:border-b-0 md:border-r border-gray-800/80 flex flex-col z-10 transition-all duration-300">
     <!-- Header -->
     <div class="p-6 border-b border-gray-800/60 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -273,65 +273,49 @@
   </aside>
 
   <!-- Central Visualizer Area -->
-  <main class="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden bg-[#070a13] z-10 select-none">
+  <main id="preview-main" class="flex-1 flex flex-col items-center justify-start pt-28 pb-16 px-6 relative overflow-hidden bg-cyberpunk z-10 select-none transition-all duration-500">
     
-    <!-- Top Action Panel for Preview -->
-    <div class="absolute top-6 left-6 right-6 flex items-center justify-between pointer-events-auto">
-      <div class="flex items-center gap-2 bg-gray-900/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-gray-800/80">
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span class="text-xs font-semibold text-gray-300">Live Preview</span>
-      </div>
-      
-      <!-- Interactive sharing button -->
-      <button onclick="copyShareLink()" class="flex items-center gap-2 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-full border border-purple-500/20 transition-all duration-300 shadow-md shadow-purple-950/30">
-        <i class="fa-solid fa-copy"></i>
-        <span>Copiar URL do Hub</span>
-      </button>
-    </div>
-
-    <!-- Phone Mockup Container -->
-    <div class="phone-mockup flex flex-col w-[320px] h-[640px] animate-fade-in relative">
-      <!-- Phone Bezel Details (Dynamic Island, Camera notch, etc) -->
-      <div class="dynamic-island"></div>
-      
-      <!-- Status Bar Area inside the Mockup -->
-      <div class="h-10 flex-shrink-0 flex items-center justify-between px-6 pt-3 text-[10px] font-bold text-white/80 z-20 pointer-events-none">
-        <span id="phone-time">09:41</span>
-        <div class="flex items-center gap-1.5">
-          <i class="fa-solid fa-signal"></i>
-          <i class="fa-solid fa-wifi"></i>
-          <i class="fa-solid fa-battery-three-quarters"></i>
-        </div>
-      </div>
-
-      <!-- Smartphone Screen Content (Rendered dynamic layout) -->
-      <div id="phone-screen" class="flex-1 overflow-y-auto px-5 py-4 pb-8 flex flex-col items-center space-y-5 bg-cyberpunk relative scrollbar-none scroll-smooth">
-        <!-- Profile Panel inside the Phone -->
-        <div class="flex flex-col items-center text-center space-y-2 mt-4 w-full">
-          <div class="relative">
-            <div class="absolute inset-0 bg-gradient-to-tr from-purple-500 to-cyan-400 rounded-full blur-[4px] opacity-75"></div>
-            <img id="phone-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80" alt="Avatar" class="relative w-20 h-20 rounded-full object-cover border-2 border-white shadow-xl">
-          </div>
-          <div class="space-y-0.5">
-            <h2 id="phone-name" class="font-extrabold text-base text-white drop-shadow-md">Samuel Lopes</h2>
-            <p id="phone-bio" class="text-xs text-white/80 max-w-[220px] leading-relaxed drop-shadow">Criador de experiências digitais. Seja bem-vindo ao meu hub!</p>
+    <!-- Visualizer Header Component -->
+    <header class="w-full max-w-4xl flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/10 pb-6 z-20 pointer-events-auto">
+      <div class="flex items-center gap-4">
+        <!-- Sidebar Toggle Button -->
+        <button onclick="toggleSidebar()" title="Mostrar/Esconder Menu" class="flex items-center justify-center w-11 h-11 bg-zinc-900/80 backdrop-blur-md text-zinc-300 hover:text-white rounded-xl border border-zinc-800 transition-all active:scale-95 shadow-md shadow-black/25">
+          <i id="sidebar-toggle-icon" class="fa-solid fa-chevron-left text-sm"></i>
+        </button>
+        <div class="flex flex-col">
+          <h2 id="header-dynamic-title" class="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-md">Samuel Lopes</h2>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="card-status" class="text-xs font-semibold text-white/80 drop-shadow">Hub de Links Ativo</span>
           </div>
         </div>
-
-        <!-- Rendered Buttons List Inside the phone -->
-        <div id="phone-links-container" class="w-full flex-1 flex flex-col space-y-3.5 pt-2">
-          <!-- Dynamically Rendered by JS -->
-        </div>
-
-        <!-- Social Icons Bottom inside Phone -->
-        <div id="phone-socials" class="flex items-center justify-center gap-5 pt-4 border-t border-white/10 w-full text-white">
-          <!-- Dynamically populated -->
-        </div>
       </div>
+      
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <!-- Search Field (Input with Label) -->
+        <div class="relative flex-1 sm:w-64">
+          <label for="search-links-input" class="sr-only">Buscar links</label>
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+          </div>
+          <input id="search-links-input" type="search" placeholder="Buscar links..." oninput="handleSearchInput(event)" class="w-full pl-9 pr-4 py-2.5 bg-zinc-900/80 backdrop-blur-md border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
+        </div>
+        
+        <!-- Primary Action Button -->
+        <button id="header-action-btn" onclick="copyShareLink()" class="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl border border-purple-500/20 shadow-lg shadow-purple-950/20 transition-all active:scale-95">
+          <i class="fa-solid fa-share-nodes"></i>
+          <span>Compartilhar Hub</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Links Grid Container -->
+    <div id="preview-links-container" class="mt-[15px] grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-4xl px-4 overflow-y-auto max-h-[calc(100vh-220px)] scrollbar-none animate-fade-in z-10 justify-center">
+      <!-- Dynamically Rendered by JS -->
     </div>
 
     <!-- Instructions / Footer info -->
-    <p class="absolute bottom-6 text-center text-[10px] text-gray-500 tracking-wide uppercase">
+    <p class="absolute bottom-4 text-center text-[10px] text-white/60 drop-shadow uppercase font-medium">
       Pressione o botão acima para compartilhar seu link de hub personalizado.
     </p>
   </main>

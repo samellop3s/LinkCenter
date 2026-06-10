@@ -40,6 +40,7 @@ let currentNewLinkIcon = "fa-link";
 let currentNewLinkColor = "purple";
 let currentEditLinkIcon = "fa-link";
 let currentEditLinkColor = "purple";
+let searchQueryString = "";
 
 // Mapping of color names to CSS classes for rendered links
 const colorClasses = {
@@ -54,24 +55,11 @@ const colorClasses = {
 // Initialization
 document.addEventListener("DOMContentLoaded", () => {
   loadFromLocalStorage();
-  syncTime();
-  setInterval(syncTime, 60000); // update clock every minute
   
   // Set initial form inputs based on loaded state
   initFormInputs();
   renderApp();
 });
-
-// Sync clock in the mockup status bar
-function syncTime() {
-  const clockEl = document.getElementById("phone-time");
-  if (clockEl) {
-    const now = new Date();
-    let hours = now.getHours().toString().padStart(2, "0");
-    let minutes = now.getMinutes().toString().padStart(2, "0");
-    clockEl.textContent = `${hours}:${minutes}`;
-  }
-}
 
 // Load configurations and items from local storage
 function loadFromLocalStorage() {
@@ -310,15 +298,17 @@ window.updateSocialsFromInputs = function() {
   renderMockupSocials();
 };
 
-// Change Phone Mockup Theme Background
+// Change Fullscreen Theme Background
 window.changeTheme = function(themeClass) {
   state.appearance.theme = themeClass;
   saveToLocalStorage();
   
-  const phoneScreen = document.getElementById("phone-screen");
-  // Remove all presets classes
-  phoneScreen.classList.remove("bg-sunset", "bg-cyberpunk", "bg-ocean", "bg-emerald-glow", "bg-aurora", "bg-dark-glass", "bg-light-glass");
-  phoneScreen.classList.add(themeClass);
+  const previewMain = document.getElementById("preview-main");
+  if (previewMain) {
+    // Remove all presets classes
+    previewMain.classList.remove("bg-sunset", "bg-cyberpunk", "bg-ocean", "bg-emerald-glow", "bg-aurora", "bg-dark-glass", "bg-light-glass");
+    previewMain.classList.add(themeClass);
+  }
   
   // Highlight active theme button in Sidebar
   document.querySelectorAll(".theme-select-btn").forEach(btn => {
@@ -352,6 +342,28 @@ window.changeBtnShape = function(shapeClass) {
   renderMockupLinks();
 };
 
+// Toggle Left Sidebar Visibility
+window.toggleSidebar = function() {
+  const sidebar = document.getElementById("sidebar");
+  const toggleIcon = document.getElementById("sidebar-toggle-icon");
+  if (!sidebar || !toggleIcon) return;
+  
+  const isCollapsed = sidebar.classList.contains("sidebar-collapsed");
+  if (isCollapsed) {
+    sidebar.classList.remove("sidebar-collapsed");
+    toggleIcon.className = "fa-solid fa-chevron-left text-sm";
+  } else {
+    sidebar.classList.add("sidebar-collapsed");
+    toggleIcon.className = "fa-solid fa-chevron-right text-sm";
+  }
+};
+
+// Handle input from the search field to filter links
+window.handleSearchInput = function(event) {
+  searchQueryString = event.target.value.toLowerCase().trim();
+  renderMockupLinks();
+};
+
 // Copy Shareable Hub Link
 window.copyShareLink = function() {
   const fakeUrl = `https://linkcenter.co/${state.profile.name.toLowerCase().replace(/\s+/g, '')}`;
@@ -379,25 +391,20 @@ function showToast(message) {
   }, 2500);
 }
 
-// Animate Dynamic Island inside Phone on changes
+// Animate Dashboard Status Badge on changes
 function triggerDynamicIslandAnimation(text) {
-  const island = document.querySelector(".dynamic-island");
-  if (!island) return;
+  const statusBadge = document.getElementById("card-status");
+  if (!statusBadge) return;
   
-  // Expanded styling
-  island.style.width = "170px";
-  island.style.height = "28px";
-  island.style.borderRadius = "20px";
-  island.style.display = "flex";
-  island.style.alignItems = "center";
-  island.style.justify = "center";
-  island.innerHTML = `<span class="text-[9px] font-bold text-white w-full text-center animate-fade-in">${text}</span>`;
+  statusBadge.textContent = text;
+  statusBadge.parentElement.classList.remove("text-white/70", "border-white/10");
+  statusBadge.parentElement.classList.add("text-emerald-400", "border-emerald-500/30", "bg-emerald-950/40");
   
   setTimeout(() => {
-    island.style.width = "85px";
-    island.style.height = "25px";
-    island.innerHTML = "";
-  }, 1800);
+    statusBadge.textContent = "Visualização Ativa";
+    statusBadge.parentElement.classList.add("text-white/70", "border-white/10");
+    statusBadge.parentElement.classList.remove("text-emerald-400", "border-emerald-500/30", "bg-emerald-950/40");
+  }, 2000);
 }
 
 // Render the entire app updates
@@ -473,27 +480,58 @@ function renderEditorLinks() {
 
 // Render Profile updates in Mockup
 function renderMockupProfile() {
-  document.getElementById("phone-avatar").src = state.profile.avatarUrl;
-  document.getElementById("profile-preview-avatar").src = state.profile.avatarUrl;
-  document.getElementById("phone-name").textContent = state.profile.name;
-  document.getElementById("phone-bio").textContent = state.profile.bio;
+  const previewAvatar = document.getElementById("preview-avatar");
+  if (previewAvatar) previewAvatar.src = state.profile.avatarUrl;
+  
+  const sidebarAvatar = document.getElementById("profile-preview-avatar");
+  if (sidebarAvatar) sidebarAvatar.src = state.profile.avatarUrl;
+  
+  const previewName = document.getElementById("preview-name");
+  if (previewName) previewName.textContent = state.profile.name;
+  
+  const previewBio = document.getElementById("preview-bio");
+  if (previewBio) previewBio.textContent = state.profile.bio;
+
+  // Sync Header dynamic text elements
+  const headerTitle = document.getElementById("header-dynamic-title");
+  if (headerTitle) headerTitle.textContent = state.profile.name;
+
+  const headerSubtitle = document.getElementById("header-dynamic-subtitle");
+  if (headerSubtitle) headerSubtitle.textContent = `Hub de Links de ${state.profile.name}`;
 }
 
-// Render dynamic Link Buttons in Smartphone screen
+// Render dynamic Link Buttons as beautiful hover cards in central grid
 function renderMockupLinks() {
-  const container = document.getElementById("phone-links-container");
+  const container = document.getElementById("preview-links-container");
   container.innerHTML = "";
   
-  // Filter only active links
-  const activeLinks = state.links.filter(l => l.active);
+  // Filter active links
+  let activeLinks = state.links.filter(l => l.active);
+
+  // Apply search query filter if not empty
+  if (searchQueryString) {
+    activeLinks = activeLinks.filter(link => 
+      link.title.toLowerCase().includes(searchQueryString) || 
+      link.url.toLowerCase().includes(searchQueryString)
+    );
+  }
   
   if (activeLinks.length === 0) {
-    container.innerHTML = `
-      <div class="flex-1 flex flex-col items-center justify-center text-center text-white/40 p-4 border border-dashed border-white/10 rounded-2xl bg-black/20">
-        <i class="fa-solid fa-ghost text-lg mb-1.5"></i>
-        <p class="text-[10px]">Sem links ativos no momento</p>
-      </div>
-    `;
+    if (searchQueryString) {
+      container.innerHTML = `
+        <div class="col-span-full py-12 flex flex-col items-center justify-center text-center text-white/50 border border-dashed border-white/20 rounded-2xl bg-black/10">
+          <i class="fa-solid fa-magnifying-glass text-2xl mb-2 text-white/30 animate-pulse"></i>
+          <p class="text-xs font-semibold text-zinc-300">Nenhum link correspondente à busca: "${searchQueryString}"</p>
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="col-span-full py-12 flex flex-col items-center justify-center text-center text-white/50 border border-dashed border-white/20 rounded-2xl bg-black/10">
+          <i class="fa-solid fa-ghost text-2xl mb-2 text-white/30"></i>
+          <p class="text-xs">Nenhum link ativo no momento.</p>
+        </div>
+      `;
+    }
     return;
   }
   
@@ -509,33 +547,41 @@ function renderMockupLinks() {
     
     // Light text styling adjustments if background theme is light
     const isLightTheme = state.appearance.theme === "bg-light-glass";
-    const titleTextClass = isLightTheme && link.color === 'glass' ? 'text-gray-900 font-semibold' : 'text-inherit font-semibold';
+    const titleTextClass = isLightTheme && link.color === 'glass' ? 'text-gray-900 font-bold' : 'text-inherit font-bold';
+    const subTextClass = isLightTheme && link.color === 'glass' ? 'text-gray-600' : 'text-inherit opacity-75';
     
-    btn.className = `preview-link-btn w-full py-2.5 px-4 flex items-center justify-between text-xs shadow-sm hover:shadow-md transition-all duration-300 ${shapeClass} ${colorBgClass}`;
+    // Card with full hover animation and scale feedback
+    btn.className = `preview-link-btn group w-full p-4 flex items-center justify-between text-left shadow-md hover:-translate-y-1 hover:shadow-xl transition-all active:scale-95 duration-300 ${shapeClass} ${colorBgClass}`;
     
     let iconHtml = "";
     if (link.icon.startsWith("fa-")) {
       const isBrand = link.icon === "fa-github" || link.icon === "fa-linkedin" || link.icon === "fa-youtube" || link.icon === "fa-whatsapp";
-      iconHtml = `<i class="${isBrand ? 'fa-brands' : 'fa-solid'} ${link.icon} text-sm"></i>`;
+      iconHtml = `<i class="${isBrand ? 'fa-brands' : 'fa-solid'} ${link.icon} text-lg"></i>`;
     }
     
     btn.innerHTML = `
-      <div class="flex items-center gap-2.5 min-w-0">
-        <span class="w-5 h-5 flex items-center justify-center opacity-85 flex-shrink-0">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
           ${iconHtml}
         </span>
-        <span class="${titleTextClass} truncate text-[13px]">${link.title}</span>
+        <div class="min-w-0">
+          <span class="${titleTextClass} block truncate text-[14px] tracking-tight leading-snug">${link.title}</span>
+          <span class="${subTextClass} block truncate text-[10px] mt-0.5">${link.url}</span>
+        </div>
       </div>
-      <i class="fa-solid fa-chevron-right text-[10px] opacity-50 flex-shrink-0"></i>
+      <div class="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 group-hover:bg-white/20 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0">
+        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+      </div>
     `;
     
     container.appendChild(btn);
   });
 }
 
-// Render dynamic Social Media handles on the phone mockup
+// Render dynamic Social Media handles on the preview dashboard
 function renderMockupSocials() {
-  const container = document.getElementById("phone-socials");
+  const container = document.getElementById("preview-socials");
+  if (!container) return;
   container.innerHTML = "";
   
   const socials = state.profile.socials;
@@ -548,7 +594,7 @@ function renderMockupSocials() {
     hasSocials = true;
     container.innerHTML += `
       <a href="https://instagram.com/${socials.instagram}" target="_blank" class="${iconColorClass} transition-colors">
-        <i class="fa-brands fa-instagram text-lg"></i>
+        <i class="fa-brands fa-instagram text-xl"></i>
       </a>
     `;
   }
@@ -556,17 +602,16 @@ function renderMockupSocials() {
     hasSocials = true;
     container.innerHTML += `
       <a href="https://github.com/${socials.github}" target="_blank" class="${iconColorClass} transition-colors">
-        <i class="fa-brands fa-github text-lg"></i>
+        <i class="fa-brands fa-github text-xl"></i>
       </a>
     `;
   }
   if (socials.linkedin) {
     hasSocials = true;
-    // Handle either raw username or direct full URL
     const link = socials.linkedin.startsWith("http") ? socials.linkedin : `https://linkedin.com/in/${socials.linkedin}`;
     container.innerHTML += `
       <a href="${link}" target="_blank" class="${iconColorClass} transition-colors">
-        <i class="fa-brands fa-linkedin text-lg"></i>
+        <i class="fa-brands fa-linkedin text-xl"></i>
       </a>
     `;
   }
@@ -574,12 +619,12 @@ function renderMockupSocials() {
     hasSocials = true;
     container.innerHTML += `
       <a href="https://twitter.com/${socials.twitter}" target="_blank" class="${iconColorClass} transition-colors">
-        <i class="fa-brands fa-x-twitter text-lg"></i>
+        <i class="fa-brands fa-x-twitter text-xl"></i>
       </a>
     `;
   }
   
   if (!hasSocials) {
-    container.innerHTML = `<span class="text-[9px] text-white/30 italic">Nenhuma rede social configurada</span>`;
+    container.innerHTML = `<span class="text-[10px] text-white/30 italic">Nenhuma rede social configurada</span>`;
   }
 }

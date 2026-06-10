@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkCenter | Seu Hub de Links Premium</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS Play CDN (v3 style, widely compatible) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Custom CSS for glassmorphism and fine details -->
+  <link rel="stylesheet" href="styles.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#0b0f19] text-gray-100 flex flex-col md:flex-row h-screen w-screen overflow-hidden">
+
+  <!-- Background Decorative Glowing Blobs -->
+  <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
+  <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-cyan-900/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
+
+  <!-- Left Sidebar (Control Panel) -->
+  <aside class="w-full md:w-[480px] bg-[#0e1322] border-b md:border-b-0 md:border-r border-gray-800/80 flex flex-col z-10">
+    <!-- Header -->
+    <div class="p-6 border-b border-gray-800/60 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-900/20">
+          <i class="fa-solid fa-link text-white text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">LinkCenter</h1>
+          <p class="text-xs text-purple-400/80 font-medium">SPA de Links Premium</p>
+        </div>
+      </div>
+      <span class="px-2.5 py-1 text-[10px] font-semibold tracking-wider text-cyan-400 bg-cyan-950/40 rounded-full border border-cyan-800/30">V1.0</span>
+    </div>
+
+    <!-- Sidebar Navigation Tabs -->
+    <div class="flex border-b border-gray-800/40 p-2 gap-1 bg-[#0a0f1d]">
+      <button onclick="switchTab('links')" id="tab-links" class="flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 bg-purple-600/10 text-purple-400 border border-purple-500/20">
+        <i class="fa-solid fa-list-ul"></i> Links
+      </button>
+      <button onclick="switchTab('profile')" id="tab-profile" class="flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 text-gray-400 hover:text-gray-200 hover:bg-gray-800/30">
+        <i class="fa-regular fa-user"></i> Perfil
+      </button>
+      <button onclick="switchTab('appearance')" id="tab-appearance" class="flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 text-gray-400 hover:text-gray-200 hover:bg-gray-800/30">
+        <i class="fa-solid fa-palette"></i> Aparência
+      </button>
+    </div>
+
+    <!-- Sidebar Dynamic Content Area -->
+    <div class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar">
+      
+      <!-- TAB: LINKS -->
+      <div id="panel-links" class="space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-bold text-gray-100 flex items-center gap-2">
+            <span class="w-1.5 h-4 bg-purple-500 rounded-full"></span>
+            Meus Links
+          </h2>
+          <span id="links-count" class="text-xs text-gray-400 bg-gray-800/50 px-2 py-0.5 rounded-full border border-gray-700/40">0 links</span>
+        </div>
+
+        <!-- Add Link Form / Trigger Button -->
+        <div class="glass-card rounded-xl p-4 space-y-4">
+          <div id="add-link-btn-container">
+            <button onclick="toggleAddForm(true)" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-semibold text-sm transition-all shadow-lg shadow-purple-950/20 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-plus"></i> Adicionar Novo Link
+            </button>
+          </div>
+
+          <!-- Add Link Fields Form (Hidden by default) -->
+          <form id="add-link-form" class="hidden space-y-3 animate-fade-in" onsubmit="handleAddLink(event)">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Novo Link</h3>
+            
+            <div class="space-y-1">
+              <label class="text-xs text-gray-400 font-medium">Título do Link</label>
+              <input type="text" id="link-title" required placeholder="Ex: Meu Portfólio" class="w-full px-3 py-2 rounded-lg text-sm glass-input">
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-xs text-gray-400 font-medium">URL (Link)</label>
+              <input type="url" id="link-url" required placeholder="https://exemplo.com" class="w-full px-3 py-2 rounded-lg text-sm glass-input">
+            </div>
+
+            <!-- Icon Picker -->
+            <div class="space-y-1">
+              <label class="text-xs text-gray-400 font-medium">Ícone do Botão</label>
+              <div class="grid grid-cols-6 gap-2">
+                <button type="button" onclick="selectIcon('fa-link')" class="icon-option p-2 bg-gray-800 hover:bg-gray-700/80 rounded border border-purple-500 text-purple-400" data-icon="fa-link">
+                  <i class="fa-solid fa-link"></i>
+                </button>
+                <button type="button" onclick="selectIcon('fa-globe')" class="icon-option p-2 bg-gray-800/40 hover:bg-gray-700/80 rounded border border-transparent text-gray-400" data-icon="fa-globe">
+                  <i class="fa-solid fa-globe"></i>
+                </button>
+                <button type="button" onclick="selectIcon('fa-github')" class="icon-option p-2 bg-gray-800/40 hover:bg-gray-700/80 rounded border border-transparent text-gray-400" data-icon="fa-github">
+                  <i class="fa-brands fa-github"></i>
+                </button>
+                <button type="button" onclick="selectIcon('fa-linkedin')" class="icon-option p-2 bg-gray-800/40 hover:bg-gray-700/80 rounded border border-transparent text-gray-400" data-icon="fa-linkedin">
+                  <i class="fa-brands fa-linkedin"></i>
+                </button>
+                <button type="button" onclick="selectIcon('fa-youtube')" class="icon-option p-2 bg-gray-800/40 hover:bg-gray-700/80 rounded border border-transparent text-gray-400" data-icon="fa-youtube">
+                  <i class="fa-brands fa-youtube"></i>
+                </button>
+                <button type="button" onclick="selectIcon('fa-whatsapp')" class="icon-option p-2 bg-gray-800/40 hover:bg-gray-700/80 rounded border border-transparent text-gray-400" data-icon="fa-whatsapp">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Color Picker -->
+            <div class="space-y-1">
+              <label class="text-xs text-gray-400 font-medium">Cor de Fundo do Botão</label>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="selectColor('purple')" class="color-option w-6 h-6 rounded-full bg-purple-600 ring-2 ring-white" data-color="purple"></button>
+                <button type="button" onclick="selectColor('blue')" class="color-option w-6 h-6 rounded-full bg-blue-600" data-color="blue"></button>
+                <button type="button" onclick="selectColor('green')" class="color-option w-6 h-6 rounded-full bg-emerald-600" data-color="green"></button>
+                <button type="button" onclick="selectColor('red')" class="color-option w-6 h-6 rounded-full bg-rose-600" data-color="red"></button>
+                <button type="button" onclick="selectColor('dark')" class="color-option w-6 h-6 rounded-full bg-gray-900 border border-gray-700" data-color="dark"></button>
+                <button type="button" onclick="selectColor('glass')" class="color-option w-6 h-6 rounded-full bg-white/10 border border-white/20" data-color="glass"></button>
+              </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+              <button type="button" onclick="toggleAddForm(false)" class="flex-1 py-2 bg-gray-800/60 hover:bg-gray-800 text-gray-300 rounded-lg text-xs font-semibold border border-gray-700/60 transition-all">Cancelar</button>
+              <button type="submit" class="flex-1 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition-all">Salvar Link</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Links List Container -->
+        <div id="links-list" class="space-y-3">
+          <!-- Populated by JS -->
+          <div class="text-center py-8 text-gray-500 border-2 border-dashed border-gray-800/80 rounded-xl">
+            <i class="fa-solid fa-link-slash text-2xl mb-2 text-gray-600"></i>
+            <p class="text-xs">Nenhum link adicionado ainda.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: PROFILE -->
+      <div id="panel-profile" class="hidden space-y-6">
+        <h2 class="text-base font-bold text-gray-100 flex items-center gap-2">
+          <span class="w-1.5 h-4 bg-purple-500 rounded-full"></span>
+          Informações do Perfil
+        </h2>
+
+        <div class="glass-card rounded-xl p-5 space-y-4">
+          <!-- Avatar Customization -->
+          <div class="space-y-2">
+            <label class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Foto do Perfil (Avatar)</label>
+            <div class="flex items-center gap-4">
+              <img id="profile-preview-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80" alt="Avatar" class="w-16 h-16 rounded-full object-cover border-2 border-purple-500 shadow-md">
+              <div class="flex-1 space-y-1">
+                <input type="text" id="profile-avatar-url" placeholder="URL da Imagem" oninput="updateProfileFromInputs()" class="w-full px-3 py-1.5 rounded-lg text-xs glass-input">
+                <p class="text-[10px] text-gray-500">Cole a URL de qualquer imagem pública ou avatar.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Name & Bio -->
+          <div class="space-y-3 pt-2 border-t border-gray-800/40">
+            <div class="space-y-1">
+              <label class="text-xs text-gray-400 font-medium">Nome de Exibição</label>
+              <input type="text" id="profile-name" placeholder="Ex: Samuel Lopes" oninput="updateProfileFromInputs()" class="w-full px-3 py-2 rounded-lg text-sm glass-input">
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-xs text-gray-400 font-medium">Biografia curta</label>
+              <textarea id="profile-bio" rows="2" placeholder="Fale um pouco sobre você..." oninput="updateProfileFromInputs()" class="w-full px-3 py-2 rounded-lg text-sm glass-input resize-none"></textarea>
+            </div>
+          </div>
+
+          <!-- Social Links -->
+          <div class="space-y-3 pt-4 border-t border-gray-800/40">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Redes Sociais</h3>
+            
+            <div class="grid grid-cols-1 gap-2">
+              <div class="flex items-center gap-2 bg-gray-900/40 rounded-lg border border-gray-800/60 px-3 py-1.5">
+                <i class="fa-brands fa-instagram text-pink-500 w-5"></i>
+                <input type="text" id="social-instagram" placeholder="Username do Instagram" oninput="updateSocialsFromInputs()" class="bg-transparent border-none focus:outline-none text-xs flex-1 text-gray-200">
+              </div>
+
+              <div class="flex items-center gap-2 bg-gray-900/40 rounded-lg border border-gray-800/60 px-3 py-1.5">
+                <i class="fa-brands fa-github text-gray-300 w-5"></i>
+                <input type="text" id="social-github" placeholder="Username do GitHub" oninput="updateSocialsFromInputs()" class="bg-transparent border-none focus:outline-none text-xs flex-1 text-gray-200">
+              </div>
+
+              <div class="flex items-center gap-2 bg-gray-900/40 rounded-lg border border-gray-800/60 px-3 py-1.5">
+                <i class="fa-brands fa-linkedin text-blue-500 w-5"></i>
+                <input type="text" id="social-linkedin" placeholder="LinkedIn URL" oninput="updateSocialsFromInputs()" class="bg-transparent border-none focus:outline-none text-xs flex-1 text-gray-200">
+              </div>
+
+              <div class="flex items-center gap-2 bg-gray-900/40 rounded-lg border border-gray-800/60 px-3 py-1.5">
+                <i class="fa-brands fa-x-twitter text-white w-5"></i>
+                <input type="text" id="social-twitter" placeholder="Username do X/Twitter" oninput="updateSocialsFromInputs()" class="bg-transparent border-none focus:outline-none text-xs flex-1 text-gray-200">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: APPEARANCE -->
+      <div id="panel-appearance" class="hidden space-y-6">
+        <h2 class="text-base font-bold text-gray-100 flex items-center gap-2">
+          <span class="w-1.5 h-4 bg-purple-500 rounded-full"></span>
+          Estilização do Hub
+        </h2>
+
+        <!-- Background Themes -->
+        <div class="glass-card rounded-xl p-5 space-y-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Temas de Fundo</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <button onclick="changeTheme('bg-sunset')" class="theme-select-btn flex flex-col items-center p-3 rounded-xl border border-gray-800 hover:border-purple-500/50 bg-gray-900/60 transition-all gap-2" data-theme="bg-sunset">
+              <div class="w-full h-12 bg-sunset rounded-lg"></div>
+              <span class="text-xs font-medium">Sunset Glow</span>
+            </button>
+            <button onclick="changeTheme('bg-cyberpunk')" class="theme-select-btn flex flex-col items-center p-3 rounded-xl border border-purple-500 bg-purple-950/20 transition-all gap-2" data-theme="bg-cyberpunk">
+              <div class="w-full h-12 bg-cyberpunk rounded-lg"></div>
+              <span class="text-xs font-semibold text-purple-300">Cyberpunk</span>
+            </button>
+            <button onclick="changeTheme('bg-ocean')" class="theme-select-btn flex flex-col items-center p-3 rounded-xl border border-gray-800 hover:border-purple-500/50 bg-gray-900/60 transition-all gap-2" data-theme="bg-ocean">
+              <div class="w-full h-12 bg-ocean rounded-lg"></div>
+              <span class="text-xs font-medium">Deep Ocean</span>
+            </button>
+            <button onclick="changeTheme('bg-aurora')" class="theme-select-btn flex flex-col items-center p-3 rounded-xl border border-gray-800 hover:border-purple-500/50 bg-gray-900/60 transition-all gap-2" data-theme="bg-aurora">
+              <div class="w-full h-12 bg-aurora rounded-lg"></div>
+              <span class="text-xs font-medium">Aurora</span>
+            </button>
+            <button onclick="changeTheme('bg-dark-glass')" class="theme-select-btn flex flex-col items-center p-3 rounded-xl border border-gray-800 hover:border-purple-500/50 bg-gray-900/60 transition-all gap-2" data-theme="bg-dark-glass">
+              <div class="w-full h-12 bg-dark-glass rounded-lg border border-gray-800"></div>
+              <span class="text-xs font-medium">Dark Premium</span>
+            </button>
+            <button onclick="changeTheme('bg-light-glass')" class="theme-select-btn flex flex-col items-center p-3 rounded-xl border border-gray-800 hover:border-purple-500/50 bg-gray-900/60 transition-all gap-2" data-theme="bg-light-glass">
+              <div class="w-full h-12 bg-light-glass rounded-lg border border-gray-200"></div>
+              <span class="text-xs font-medium">Glass Light</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Button Shape Style -->
+        <div class="glass-card rounded-xl p-5 space-y-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Estilo dos Botões</h3>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="changeBtnShape('rounded-full')" class="btn-shape-select-btn py-2 px-3 rounded-lg border border-purple-500 bg-purple-950/20 text-xs text-purple-300 font-semibold" data-shape="rounded-full">Arredondado</button>
+            <button onclick="changeBtnShape('rounded-xl')" class="btn-shape-select-btn py-2 px-3 rounded-lg border border-gray-800 bg-gray-900/60 text-xs text-gray-400 font-medium" data-shape="rounded-xl">Suave</button>
+            <button onclick="changeBtnShape('rounded-none')" class="btn-shape-select-btn py-2 px-3 rounded-lg border border-gray-800 bg-gray-900/60 text-xs text-gray-400 font-medium" data-shape="rounded-none">Reto</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- Central Visualizer Area -->
+  <main class="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden bg-[#070a13] z-10 select-none">
+    
+    <!-- Top Action Panel for Preview -->
+    <div class="absolute top-6 left-6 right-6 flex items-center justify-between pointer-events-auto">
+      <div class="flex items-center gap-2 bg-gray-900/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-gray-800/80">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-xs font-semibold text-gray-300">Live Preview</span>
+      </div>
+      
+      <!-- Interactive sharing button -->
+      <button onclick="copyShareLink()" class="flex items-center gap-2 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-full border border-purple-500/20 transition-all duration-300 shadow-md shadow-purple-950/30">
+        <i class="fa-solid fa-copy"></i>
+        <span>Copiar URL do Hub</span>
+      </button>
+    </div>
+
+    <!-- Phone Mockup Container -->
+    <div class="phone-mockup flex flex-col w-[320px] h-[640px] animate-fade-in relative">
+      <!-- Phone Bezel Details (Dynamic Island, Camera notch, etc) -->
+      <div class="dynamic-island"></div>
+      
+      <!-- Status Bar Area inside the Mockup -->
+      <div class="h-10 flex-shrink-0 flex items-center justify-between px-6 pt-3 text-[10px] font-bold text-white/80 z-20 pointer-events-none">
+        <span id="phone-time">09:41</span>
+        <div class="flex items-center gap-1.5">
+          <i class="fa-solid fa-signal"></i>
+          <i class="fa-solid fa-wifi"></i>
+          <i class="fa-solid fa-battery-three-quarters"></i>
+        </div>
+      </div>
+
+      <!-- Smartphone Screen Content (Rendered dynamic layout) -->
+      <div id="phone-screen" class="flex-1 overflow-y-auto px-5 py-4 pb-8 flex flex-col items-center space-y-5 bg-cyberpunk relative scrollbar-none scroll-smooth">
+        <!-- Profile Panel inside the Phone -->
+        <div class="flex flex-col items-center text-center space-y-2 mt-4 w-full">
+          <div class="relative">
+            <div class="absolute inset-0 bg-gradient-to-tr from-purple-500 to-cyan-400 rounded-full blur-[4px] opacity-75"></div>
+            <img id="phone-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80" alt="Avatar" class="relative w-20 h-20 rounded-full object-cover border-2 border-white shadow-xl">
+          </div>
+          <div class="space-y-0.5">
+            <h2 id="phone-name" class="font-extrabold text-base text-white drop-shadow-md">Samuel Lopes</h2>
+            <p id="phone-bio" class="text-xs text-white/80 max-w-[220px] leading-relaxed drop-shadow">Criador de experiências digitais. Seja bem-vindo ao meu hub!</p>
+          </div>
+        </div>
+
+        <!-- Rendered Buttons List Inside the phone -->
+        <div id="phone-links-container" class="w-full flex-1 flex flex-col space-y-3.5 pt-2">
+          <!-- Dynamically Rendered by JS -->
+        </div>
+
+        <!-- Social Icons Bottom inside Phone -->
+        <div id="phone-socials" class="flex items-center justify-center gap-5 pt-4 border-t border-white/10 w-full text-white">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Instructions / Footer info -->
+    <p class="absolute bottom-6 text-center text-[10px] text-gray-500 tracking-wide uppercase">
+      Pressione o botão acima para compartilhar seu link de hub personalizado.
+    </p>
+  </main>
+
+  <!-- Tooltip Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-[#0e1322] border border-purple-500/30 text-purple-300 font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none z-50">
+    <div class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center">
+      <i class="fa-solid fa-check text-xs"></i>
+    </div>
+    <span id="toast-message" class="text-sm">Link copiado com sucesso!</span>
+  </div>
+
+  <!-- Edit Link Modal (For modal-style editing if preferred, or inline edit fields) -->
+  <div id="edit-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 animate-fade-in">
+    <div class="bg-[#0e1322] border border-gray-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+        <h3 class="font-bold text-base text-gray-100 flex items-center gap-2">
+          <i class="fa-regular fa-pen-to-square text-purple-400"></i>
+          Editar Link
+        </h3>
+        <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-200">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveEdit(event)" class="space-y-4">
+        <input type="hidden" id="edit-link-id">
+
+        <div class="space-y-1">
+          <label class="text-xs text-gray-400 font-medium">Título do Link</label>
+          <input type="text" id="edit-link-title" required class="w-full px-3 py-2 rounded-lg text-sm glass-input">
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs text-gray-400 font-medium">URL (Link)</label>
+          <input type="url" id="edit-link-url" required class="w-full px-3 py-2 rounded-lg text-sm glass-input">
+        </div>
+
+        <!-- Edit Icon Picker -->
+        <div class="space-y-1">
+          <label class="text-xs text-gray-400 font-medium">Ícone do Botão</label>
+          <div class="grid grid-cols-6 gap-2">
+            <button type="button" onclick="selectEditIcon('fa-link')" class="edit-icon-option p-2 bg-gray-800 rounded border border-transparent text-gray-400" data-edit-icon="fa-link">
+              <i class="fa-solid fa-link"></i>
+            </button>
+            <button type="button" onclick="selectEditIcon('fa-globe')" class="edit-icon-option p-2 bg-gray-800 rounded border border-transparent text-gray-400" data-edit-icon="fa-globe">
+              <i class="fa-solid fa-globe"></i>
+            </button>
+            <button type="button" onclick="selectEditIcon('fa-github')" class="edit-icon-option p-2 bg-gray-800 rounded border border-transparent text-gray-400" data-edit-icon="fa-github">
+              <i class="fa-brands fa-github"></i>
+            </button>
+            <button type="button" onclick="selectEditIcon('fa-linkedin')" class="edit-icon-option p-2 bg-gray-800 rounded border border-transparent text-gray-400" data-edit-icon="fa-linkedin">
+              <i class="fa-brands fa-linkedin"></i>
+            </button>
+            <button type="button" onclick="selectEditIcon('fa-youtube')" class="edit-icon-option p-2 bg-gray-800 rounded border border-transparent text-gray-400" data-edit-icon="fa-youtube">
+              <i class="fa-brands fa-youtube"></i>
+            </button>
+            <button type="button" onclick="selectEditIcon('fa-whatsapp')" class="edit-icon-option p-2 bg-gray-800 rounded border border-transparent text-gray-400" data-edit-icon="fa-whatsapp">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Edit Color Picker -->
+        <div class="space-y-1">
+          <label class="text-xs text-gray-400 font-medium">Cor de Fundo do Botão</label>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="selectEditColor('purple')" class="edit-color-option w-6 h-6 rounded-full bg-purple-600" data-edit-color="purple"></button>
+            <button type="button" onclick="selectEditColor('blue')" class="edit-color-option w-6 h-6 rounded-full bg-blue-600" data-edit-color="blue"></button>
+            <button type="button" onclick="selectEditColor('green')" class="edit-color-option w-6 h-6 rounded-full bg-emerald-600" data-edit-color="green"></button>
+            <button type="button" onclick="selectEditColor('red')" class="edit-color-option w-6 h-6 rounded-full bg-rose-600" data-edit-color="red"></button>
+            <button type="button" onclick="selectEditColor('dark')" class="edit-color-option w-6 h-6 rounded-full bg-gray-900 border border-gray-700" data-edit-color="dark"></button>
+            <button type="button" onclick="selectEditColor('glass')" class="edit-color-option w-6 h-6 rounded-full bg-white/10 border border-white/20" data-edit-color="glass"></button>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-2 border-t border-gray-800">
+          <button type="button" onclick="closeEditModal()" class="flex-1 py-2.5 bg-gray-850 hover:bg-gray-800 text-gray-300 rounded-lg text-sm font-semibold transition-all">Cancelar</button>
+          <button type="submit" class="flex-1 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition-all">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript file -->
+  <script src="app.js"></script>
+</body>
+</html>
